@@ -1,12 +1,10 @@
-'use strict';
+import TogglOrigins from './origins';
 
 var TogglButton = chrome.extension.getBackgroundPage().TogglButton,
   GA = chrome.extension.getBackgroundPage().GA,
   Db = chrome.extension.getBackgroundPage().Db,
   FF = navigator.userAgent.indexOf('Chrome') === -1,
   w = window.innerWidth,
-  timer,
-  TogglOrigins = chrome.extension.getBackgroundPage().TogglOrigins,
   replaceContent = function(parentSelector, html) {
     var container = document.querySelector(parentSelector);
     while (container.firstChild) {
@@ -66,7 +64,7 @@ var Settings = {
       a = document.createElement('a');
       a.title = 'Changelog';
       a.setAttribute('href', 'http://toggl.github.io/toggl-button');
-      a.textContent = '(' + chrome.runtime.getManifest().version + ')';
+      a.textContent = `(${process.env.VERSION})`;
       document.querySelector('#version').appendChild(a);
       Settings.setFromTo();
       document.querySelector('#nag-nanny-interval').value =
@@ -930,17 +928,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
       Settings.$tabs.style.width = (w + 20) * 3 + 'px';
     }
 
-    if (!TogglOrigins) {
-      timer = setInterval(function() {
-        if (!TogglOrigins) {
-          TogglOrigins = chrome.extension.getBackgroundPage().TogglOrigins;
-        } else {
-          clearInterval(timer);
-          timer = null;
-          Settings.loadSitesIntoList();
-        }
-      }, 250);
-    }
+    Settings.loadSitesIntoList();
   } catch (err) {
     chrome.runtime.sendMessage({
       type: 'error',
